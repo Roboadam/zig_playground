@@ -1,5 +1,10 @@
-const print = @import("std").debug.print;
+const std = @import("std");
+const c = @cImport(@cInclude("GLFW/glfw3.h"));
+
+const glfw = @import("glfw");
 
 pub fn main() void {
-    print("Hello, world!\n", .{});
+    if (c.glfwInit()) {
+        print("Hello, world!\n", .{});
+    }
 }
