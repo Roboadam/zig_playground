@@ -3,7 +3,6 @@ const c = @cImport(@cInclude("GLFW/glfw3.h"));
 const glfw = @import("glfw");
 
 pub fn main() void {
-    if (c.glfwInit() == 0) {
-        print("Hello, world!\n", .{});
-    }
+    const result = c.glfwInit();
+    print("result:{} true is {}", .{ result, c.GLFW_TRUE });
 }

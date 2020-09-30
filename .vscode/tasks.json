@@ -13,7 +13,7 @@
     {
       "label": "run",
       "type": "process",
-      "command": "build/hello.exe",
+      "command": "zig-cache/bin/hello.exe",
       "problemMatcher": []
     }
   ]
