@@ -22,3 +22,15 @@ pub fn main() void {
     c.glfwDestroyWindow(window);
     c.glfwTerminate();
 }
+
+fn run() void {
+    initVulkan();
+    mainLoop();
+    cleanup();
+}
+
+fn initVulkan() void {}
+
+fn mainLoop() void {}
+
+fn cleanup() void {}
