@@ -5,15 +5,20 @@ const c = @cImport({
 });
 
 pub fn main() void {
-    const result = c.glfwInit();
-    print("result:{} true is {}", .{ result, c.GLFW_TRUE });
+    _ = c.glfwInit();
     c.glfwWindowHint(c.GLFW_CLIENT_API, c.GLFW_NO_API);
 
-    // GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
     const window = c.glfwCreateWindow(800, 600, "Vulkan window", null, null);
 
-    // uint32_t extensionCount = 0;
-    // vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
     var extensionCount: u32 = 0;
-    const blah = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
+    _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
+
+    print("{} extensions supported\n", .{extensionCount});
+
+    while (c.glfwWindowShouldClose(window) == c.GLFW_FALSE) {
+        c.glfwPollEvents();
+    }
+
+    c.glfwDestroyWindow(window);
+    c.glfwTerminate();
 }
