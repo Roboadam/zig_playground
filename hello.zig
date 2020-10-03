@@ -8,48 +8,49 @@ const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
 
 pub fn main() void {
-    run();
+    var app = HelloTriangleApplication{ .window = null };
+    app.run();
 
-    var extensionCount: u32 = 0;
-    _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
-
-    print("{} extensions supported\n", .{extensionCount});
-
-    while (c.glfwWindowShouldClose(window) == c.GLFW_FALSE) {
-        c.glfwPollEvents();
-    }
-
-    c.glfwDestroyWindow(window);
-    c.glfwTerminate();
+    // var extensionCount: u32 = 0;
+    // _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
+    // print("{} extensions supported\n", .{extensionCount});
 }
 
 const HelloTriangleApplication = struct {
-    var window: f32;
+    window: ?*c.GLFWwindow,
 
-    pub fn run() void {
-        initWindow();
-        initVulkan();
-        mainLoop();
-        cleanup();
+    pub fn run(self: *HelloTriangleApplication) void {
+        self.initWindow();
+        self.initVulkan();
+        self.mainLoop();
+        self.cleanup();
     }
 
-    fn initWindow() void {
-    // Initalize the window
-    _ = c.glfwInit();
+    fn initWindow(self: *HelloTriangleApplication) void {
+        // Initalize the window
+        _ = c.glfwInit();
 
-    // Because GLFW was originally designed to create an OpenGL context, we
-    // need to tell it to not create an OpenGL context.
-    c.glfwWindowHint(c.GLFW_CLIENT_API, c.GLFW_NO_API);
+        // Because GLFW was originally designed to create an OpenGL context, we
+        // need to tell it to not create an OpenGL context.
+        c.glfwWindowHint(c.GLFW_CLIENT_API, c.GLFW_NO_API);
 
-    // Disable window resizing
-    c.glfwWindowHint(c.GLFW_RESIZABLE, c.GLFW_FALSE);
+        // Disable window resizing
+        c.glfwWindowHint(c.GLFW_RESIZABLE, c.GLFW_FALSE);
 
-    // Create the actual window
-    window = c.glfwCreateWindow(WIDTH, HEIGHT, "Vulkan window", null, null);
+        // Create the actual window
+        self.window = c.glfwCreateWindow(WIDTH, HEIGHT, "Vulkan window", null, null);
     }
-fn initVulkan() void {}
 
-fn mainLoop() void {}
+    fn initVulkan(self: HelloTriangleApplication) void {}
 
-fn cleanup() void {}
-}
+    fn mainLoop(self: HelloTriangleApplication) void {
+        while (c.glfwWindowShouldClose(self.window) == c.GLFW_FALSE) {
+            c.glfwPollEvents();
+        }
+    }
+
+    fn cleanup(self: HelloTriangleApplication) void {
+        c.glfwDestroyWindow(self.window);
+        c.glfwTerminate();
+    }
+};
