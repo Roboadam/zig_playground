@@ -12,7 +12,10 @@ pub fn build(b: *Builder) !void {
     const exe = b.addExecutable("hello", "hello.zig");
     exe.setBuildMode(b.standardReleaseOptions());
 
-    var build_config = try read_build_config();
+    const allocator = std.heap.page_allocator;
+    var build_config = try alloc_and_read_build_config(allocator);
+    defer free_build_config(allocator, build_config);
+
     exe.addIncludeDir(build_config.glfw_include_dir);
     exe.addIncludeDir(build_config.vulkan_include_dir);
     exe.addLibPath(build_config.glfw_lib_dir);
@@ -27,10 +30,9 @@ pub fn build(b: *Builder) !void {
     exe.install();
 }
 
-fn read_build_config() !BuildConfig {
-    const allocator = std.heap.page_allocator;
-    const json_file: std.fs.File = try std.fs.cwd().openFile("build_config.json", .{});
-    const json_content = try readFileAlloc(allocator, json_file);
+fn alloc_and_read_build_config(allocator: *std.mem.Allocator) !BuildConfig {
+    const json_file = try open_build_config_file();
+    const json_content = try alloc_and_read_file(allocator, json_file);
     defer json_file.close();
     defer allocator.free(json_content);
 
@@ -38,15 +40,17 @@ fn read_build_config() !BuildConfig {
     return try std.json.parse(BuildConfig, &stream, .{ .allocator = allocator });
 }
 
-fn free_build_config(build_config: BuildConfig) void {
-    std.json.parseFree(BuildConfig, build_config, .{ .allocator = all });
+fn free_build_config(allocator: *std.mem.Allocator, build_config: BuildConfig) void {
+    std.json.parseFree(BuildConfig, build_config, .{ .allocator = allocator });
 }
 
-fn readFileAlloc(allocator: *std.mem.Allocator, file: std.fs.File) ![]u8 {
+fn open_build_config_file() !std.fs.File {
+    return std.fs.cwd().openFile("build_config.json", .{});
+}
+
+fn alloc_and_read_file(allocator: *std.mem.Allocator, file: std.fs.File) ![]u8 {
     const size = (try file.stat()).size;
     var buffer = try allocator.alloc(u8, size);
-
     _ = try file.readAll(buffer);
-
     return buffer;
 }
