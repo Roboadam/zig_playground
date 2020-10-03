@@ -4,11 +4,11 @@ const c = @cImport({
     @cInclude("GLFW/glfw3.h");
 });
 
-pub fn main() void {
-    _ = c.glfwInit();
-    c.glfwWindowHint(c.GLFW_CLIENT_API, c.GLFW_NO_API);
+const WIDTH: u32 = 800;
+const HEIGHT: u32 = 600;
 
-    const window = c.glfwCreateWindow(800, 600, "Vulkan window", null, null);
+pub fn main() void {
+    run();
 
     var extensionCount: u32 = 0;
     _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
@@ -23,14 +23,33 @@ pub fn main() void {
     c.glfwTerminate();
 }
 
-fn run() void {
-    initVulkan();
-    mainLoop();
-    cleanup();
-}
+const HelloTriangleApplication = struct {
+    var window: f32;
 
+    pub fn run() void {
+        initWindow();
+        initVulkan();
+        mainLoop();
+        cleanup();
+    }
+
+    fn initWindow() void {
+    // Initalize the window
+    _ = c.glfwInit();
+
+    // Because GLFW was originally designed to create an OpenGL context, we
+    // need to tell it to not create an OpenGL context.
+    c.glfwWindowHint(c.GLFW_CLIENT_API, c.GLFW_NO_API);
+
+    // Disable window resizing
+    c.glfwWindowHint(c.GLFW_RESIZABLE, c.GLFW_FALSE);
+
+    // Create the actual window
+    window = c.glfwCreateWindow(WIDTH, HEIGHT, "Vulkan window", null, null);
+    }
 fn initVulkan() void {}
 
 fn mainLoop() void {}
 
 fn cleanup() void {}
+}
