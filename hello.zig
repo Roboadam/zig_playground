@@ -8,7 +8,10 @@ const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
 
 pub fn main() void {
-    var app = HelloTriangleApplication{ .window = null };
+    var app = HelloTriangleApplication{
+        .window = null,
+        .instance = null,
+    };
     app.run();
 
     // var extensionCount: u32 = 0;
@@ -18,6 +21,7 @@ pub fn main() void {
 
 const HelloTriangleApplication = struct {
     window: ?*c.GLFWwindow,
+    instance: ?*c.VkInstance,
 
     pub fn run(self: *HelloTriangleApplication) void {
         self.initWindow();
@@ -41,7 +45,9 @@ const HelloTriangleApplication = struct {
         self.window = c.glfwCreateWindow(WIDTH, HEIGHT, "Vulkan window", null, null);
     }
 
-    fn initVulkan(self: HelloTriangleApplication) void {}
+    fn initVulkan(self: HelloTriangleApplication) void {
+        self.createInstance();
+    }
 
     fn mainLoop(self: HelloTriangleApplication) void {
         while (c.glfwWindowShouldClose(self.window) == c.GLFW_FALSE) {
@@ -53,4 +59,6 @@ const HelloTriangleApplication = struct {
         c.glfwDestroyWindow(self.window);
         c.glfwTerminate();
     }
+
+    fn createInstance(self: HelloTriangleApplication) void {}
 };
