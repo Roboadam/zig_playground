@@ -1,0 +1,6 @@
+{
+  "glfw_include_dir": "C:\\Users\\adam\\dev\\glfw\\glfw-3.3.2\\include",
+  "glfw_lib_dir": "C:\\Users\\adam\\dev\\vulkan\\1.2.148.1\\Include",
+  "vulkan_include_dir": "C:\\Users\\adam\\dev\\glfw\\glfw-3.3.2\\src\\Release",
+  "vulkan_lib": "C:\\Users\\adam\\dev\\vulkan\\1.2.148.1\\Lib\\vulkan-1"
+}
