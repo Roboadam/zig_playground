@@ -96,5 +96,15 @@ const HelloTriangleApplication = struct {
         if (c.vkCreateInstance(&createInfo, null, &self.instance) != c.VkResult.VK_SUCCESS) {
             return error.UnableToCreateVulkanInstance;
         }
+
+        var extensionCount: u32 = 0;
+        _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
+        var extensions: [extensionCount]c.VkExtensionProperties = undefined; // I need an allocator here
+        _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, extensions);
+        print("available extensions:\n", .{});
+
+        for (extensions) |extension| {
+            print("\t{}\n", .{extension.extensionName});
+        }
     }
 };
