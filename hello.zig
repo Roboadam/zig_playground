@@ -60,5 +60,14 @@ const HelloTriangleApplication = struct {
         c.glfwTerminate();
     }
 
-    fn createInstance(self: HelloTriangleApplication) void {}
+    fn createInstance(self: HelloTriangleApplication) void {
+        const appInfo = c.VkApplicationInfo{
+            .sType = c.VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            .pApplicationName = "Hello Triangle",
+            .applicationVersion = c.VK_MAKE_VERSION(1, 0, 0),
+            .pEngineName = "No Engine",
+            .engineVersion = c.VK_MAKE_VERSION(1, 0, 0),
+            .apiVersion = c.VK_API_VERSION_1_0,
+        };
+    }
 };
