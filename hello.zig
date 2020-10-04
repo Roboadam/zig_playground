@@ -107,7 +107,7 @@ const HelloTriangleApplication = struct {
         print("available extensions:\n", .{});
 
         for (extensions) |extension| {
-            print("\t{s}\n", .{extension.extensionName});
+            _ = std.c.printf("\t%s\n", .{extension.extensionName});
         }
     }
 };
