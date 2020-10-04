@@ -1,4 +1,5 @@
-const print = @import("std").debug.print;
+const std = @import("std");
+const print = std.debug.print;
 const c = @cImport({
     @cDefine("GLFW_INCLUDE_VULKAN", {});
     @cInclude("GLFW/glfw3.h");
@@ -99,12 +100,14 @@ const HelloTriangleApplication = struct {
 
         var extensionCount: u32 = 0;
         _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
-        var extensions: [extensionCount]c.VkExtensionProperties = undefined; // I need an allocator here
-        _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, extensions);
+        // var extensions: [extensionCount]c.VkExtensionProperties = undefined; // I need an allocator here
+        const allocator = std.heap.page_allocator;
+        var extensions = try allocator.alloc(c.VkExtensionProperties, extensionCount);
+        _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, extensions.ptr);
         print("available extensions:\n", .{});
 
         for (extensions) |extension| {
-            print("\t{}\n", .{extension.extensionName});
+            print("\t{s}\n", .{extension.extensionName});
         }
     }
 };
