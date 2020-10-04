@@ -10,18 +10,14 @@ const HEIGHT: u32 = 600;
 pub fn main() !void {
     var app = HelloTriangleApplication{
         .window = null,
+        .instance = undefined,
     };
     try app.run();
-
-    // var extensionCount: u32 = 0;
-    // _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
-    // print("{} extensions supported\n", .{extensionCount});
 }
-
-var instance: c.VkInstance = undefined;
 
 const HelloTriangleApplication = struct {
     window: ?*c.GLFWwindow,
+    instance: c.VkInstance,
 
     pub fn run(self: *HelloTriangleApplication) !void {
         self.initWindow();
@@ -45,7 +41,7 @@ const HelloTriangleApplication = struct {
         self.window = c.glfwCreateWindow(WIDTH, HEIGHT, "Vulkan window", null, null);
     }
 
-    fn initVulkan(self: HelloTriangleApplication) !void {
+    fn initVulkan(self: *HelloTriangleApplication) !void {
         try self.createInstance();
     }
 
@@ -60,7 +56,7 @@ const HelloTriangleApplication = struct {
         c.glfwTerminate();
     }
 
-    fn createInstance(self: HelloTriangleApplication) !void {
+    fn createInstance(self: *HelloTriangleApplication) !void {
         // This data is technically optional, but it may provide some useful
         // information to the driver in order to optimize our specific
         // application (e.g. because it uses a well-known graphics engine with
@@ -97,11 +93,8 @@ const HelloTriangleApplication = struct {
             .ppEnabledLayerNames = null,
         };
 
-        print("1", .{});
-        if (c.vkCreateInstance(&createInfo, null, &instance) != c.VkResult.VK_SUCCESS) {
-            print("2", .{});
-            return error.What;
+        if (c.vkCreateInstance(&createInfo, null, &self.instance) != c.VkResult.VK_SUCCESS) {
+            return error.UnableToCreateVulkanInstance;
         }
-        print("3", .{});
     }
 };
