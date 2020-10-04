@@ -53,11 +53,18 @@ const HelloTriangleApplication = struct {
     }
 
     fn cleanup(self: HelloTriangleApplication) void {
+        c.vkDestroyInstance(self.instance, null);
         c.glfwDestroyWindow(self.window);
         c.glfwTerminate();
+        print("All cleaned up!", .{});
     }
 
     fn createInstance(self: *HelloTriangleApplication) !void {
+        // TODO: disable this in release mode
+        if (!try checkValidationLayerSupport()) {
+            return error.ValidationLayerNotFound;
+        }
+
         // This data is technically optional, but it may provide some useful
         // information to the driver in order to optimize our specific
         // application (e.g. because it uses a well-known graphics engine with
@@ -110,4 +117,36 @@ const HelloTriangleApplication = struct {
             _ = std.c.printf("\t%s\n", .{extension.extensionName});
         }
     }
+
+    fn checkValidationLayerSupport() !bool {
+        var layerCount: u32 = 0;
+        _ = c.vkEnumerateInstanceLayerProperties(&layerCount, null);
+
+        const allocator = std.heap.page_allocator;
+        var availableLayers = try allocator.alloc(c.VkLayerProperties, layerCount);
+        _ = c.vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.ptr);
+
+        // for (const char* layerName : validationLayers) {
+        for (validationLayers) |layerName| {
+            //     bool layerFound = false;
+            var layerFound = false;
+
+            //     for (const auto& layerProperties : availableLayers) {
+            for (availableLayers) |layerProperties| {
+                // if (strcmp(layerName, layerProperties.layerName) == 0) {
+                if (std.c.strcmp(layerName, layerProperties.layerName) == 0) {
+                    layerFound = true;
+                    break;
+                }
+            }
+
+            if (!layerFound) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 };
+
+const validationLayers = [1][]u8{"VK_LAYER_KHRONOS_validation"};
