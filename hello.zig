@@ -123,18 +123,17 @@ const HelloTriangleApplication = struct {
         _ = c.vkEnumerateInstanceLayerProperties(&layerCount, null);
 
         const allocator = std.heap.page_allocator;
-        var availableLayers = try allocator.alloc(c.VkLayerProperties, layerCount);
+        const availableLayers = try allocator.alloc(c.VkLayerProperties, layerCount);
         _ = c.vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.ptr);
 
         for (validationLayers) |layerName| {
             var layerFound = false;
 
             for (availableLayers) |layerProperties| {
-                print("layerName len:{}, fromc len:{}\n", .{ layerName.len, layerProperties.layerName.len });
-                // if (std.mem.eql(u8, layerName, layerProperties.layerName)) {
-                //     layerFound = true;
-                //     break;
-                // }
+                if (std.mem.eql(u8, layerName, fixNullTerminatedString(layerProperties.layerName))) {
+                    layerFound = true;
+                    break;
+                }
             }
 
             if (!layerFound) {
@@ -145,6 +144,11 @@ const HelloTriangleApplication = struct {
         return true;
     }
 };
+
+fn fixNullTerminatedString(input: [256]u8) []const u8 {
+    const len = std.mem.indexOf(u8, input[0..256], "\x00") orelse 0;
+    return input[0..len];
+}
 
 const validationLayers = [_][]const u8{
     "VK_LAYER_KHRONOS_validation",
