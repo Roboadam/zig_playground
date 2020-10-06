@@ -7,6 +7,7 @@ const c = @cImport({
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
+const enableValidationLayers = true;
 
 pub fn main() !void {
     var app = HelloTriangleApplication{
@@ -61,7 +62,7 @@ const HelloTriangleApplication = struct {
 
     fn createInstance(self: *HelloTriangleApplication) !void {
         // TODO: disable this in release mode
-        if (!try checkValidationLayerSupport()) {
+        if (enableValidationLayers and !try checkValidationLayerSupport()) {
             return error.ValidationLayerNotFound;
         }
 
@@ -95,10 +96,10 @@ const HelloTriangleApplication = struct {
             .pApplicationInfo = &appInfo,
             .enabledExtensionCount = glfwExtensionCount,
             .ppEnabledExtensionNames = glfwExtensions,
-            .enabledLayerCount = 0,
+            .enabledLayerCount = enabledLayerCount(),
             .pNext = null,
             .flags = 0,
-            .ppEnabledLayerNames = null,
+            .ppEnabledLayerNames = validationLayers,
         };
 
         if (c.vkCreateInstance(&createInfo, null, &self.instance) != c.VkResult.VK_SUCCESS) {
@@ -107,14 +108,13 @@ const HelloTriangleApplication = struct {
 
         var extensionCount: u32 = 0;
         _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null);
-        // var extensions: [extensionCount]c.VkExtensionProperties = undefined; // I need an allocator here
         const allocator = std.heap.page_allocator;
         var extensions = try allocator.alloc(c.VkExtensionProperties, extensionCount);
         _ = c.vkEnumerateInstanceExtensionProperties(null, &extensionCount, extensions.ptr);
         print("available extensions:\n", .{});
 
         for (extensions) |extension| {
-            _ = std.c.printf("\t%s\n", .{extension.extensionName});
+            print("\t{}\n", .{fixNullTerminatedString(extension.extensionName[0..c.VK_MAX_EXTENSION_NAME_SIZE])});
         }
     }
 
@@ -130,7 +130,7 @@ const HelloTriangleApplication = struct {
             var layerFound = false;
 
             for (availableLayers) |layerProperties| {
-                if (std.mem.eql(u8, layerName, fixNullTerminatedString(layerProperties.layerName))) {
+                if (std.mem.eql(u8, layerName, fixNullTerminatedString(layerProperties.layerName[0..c.VK_MAX_EXTENSION_NAME_SIZE]))) {
                     layerFound = true;
                     break;
                 }
@@ -145,9 +145,23 @@ const HelloTriangleApplication = struct {
     }
 };
 
-fn fixNullTerminatedString(input: [256]u8) []const u8 {
-    const len = std.mem.indexOf(u8, input[0..256], "\x00") orelse 0;
+fn fixNullTerminatedString(input: []const u8) []const u8 {
+    const len = std.mem.indexOf(u8, input, "\x00") orelse 0;
     return input[0..len];
+}
+
+fn enabledLayerCount() u32 {
+    if (enableValidationLayers) {
+        return validationLayers.len;
+    }
+    return 0;
+}
+
+fn ppEnabledLayerNames() ?[][]const u8 {
+    if (enableValidationLayers) {
+        return validationLayers;
+    }
+    return null;
 }
 
 const validationLayers = [_][]const u8{
