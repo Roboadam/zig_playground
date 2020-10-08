@@ -99,7 +99,7 @@ const HelloTriangleApplication = struct {
             .enabledLayerCount = enabledLayerCount(),
             .pNext = null,
             .flags = 0,
-            .ppEnabledLayerNames = validationLayers,
+            .ppEnabledLayerNames = if (enableValidationLayers) &validationLayers else null,
         };
 
         if (c.vkCreateInstance(&createInfo, null, &self.instance) != c.VkResult.VK_SUCCESS) {
@@ -130,7 +130,7 @@ const HelloTriangleApplication = struct {
             var layerFound = false;
 
             for (availableLayers) |layerProperties| {
-                if (std.mem.eql(u8, layerName, fixNullTerminatedString(layerProperties.layerName[0..c.VK_MAX_EXTENSION_NAME_SIZE]))) {
+                if (std.cstr.cmp(layerName, @ptrCast([*:0]const u8, &layerProperties.layerName)) == 0) {
                     layerFound = true;
                     break;
                 }
@@ -164,6 +164,4 @@ fn ppEnabledLayerNames() ?[][]const u8 {
     return null;
 }
 
-const validationLayers = [_][]const u8{
-    "VK_LAYER_KHRONOS_validation",
-};
+const validationLayers = [_][*:0]const u8{"VK_LAYER_LUNARG_standard_validation"};
