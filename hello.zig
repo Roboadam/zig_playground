@@ -96,7 +96,7 @@ const HelloTriangleApplication = struct {
             .pApplicationInfo = &appInfo,
             .enabledExtensionCount = glfwExtensionCount,
             .ppEnabledExtensionNames = glfwExtensions,
-            .enabledLayerCount = enabledLayerCount(),
+            .enabledLayerCount = if (enableValidationLayers) validationLayers.len else 0,
             .pNext = null,
             .flags = 0,
             .ppEnabledLayerNames = if (enableValidationLayers) &validationLayers else null,
@@ -148,13 +148,6 @@ const HelloTriangleApplication = struct {
 fn fixNullTerminatedString(input: []const u8) []const u8 {
     const len = std.mem.indexOf(u8, input, "\x00") orelse 0;
     return input[0..len];
-}
-
-fn enabledLayerCount() u32 {
-    if (enableValidationLayers) {
-        return validationLayers.len;
-    }
-    return 0;
 }
 
 fn ppEnabledLayerNames() ?[][]const u8 {
