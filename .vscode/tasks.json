@@ -6,7 +6,6 @@
     {
       "label": "build",
       "type": "shell",
-      //"command": "zig build-exe hello.zig --output-dir build --library c -I/c/Users/adam/dev/glfw/glfw-3.3.2/include -L/c/Users/adam/dev/glfw/glfw-3.3.2/build/src/Release",
       "command": "zig build",
       "problemMatcher": []
     },
