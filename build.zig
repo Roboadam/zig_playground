@@ -5,7 +5,7 @@ const BuildConfig = struct {
     glfw_include_dir: []u8,
     glfw_lib_dir: []u8,
     vulkan_include_dir: []u8,
-    vulkan_lib: []u8,
+    vulkan_lib_dir: []u8,
 };
 
 pub fn build(b: *Builder) !void {
@@ -19,10 +19,11 @@ pub fn build(b: *Builder) !void {
     exe.addIncludeDir(build_config.glfw_include_dir);
     exe.addIncludeDir(build_config.vulkan_include_dir);
     exe.addLibPath(build_config.glfw_lib_dir);
+    exe.addLibPath(build_config.vulkan_lib_dir);
 
     exe.linkSystemLibrary("glfw3");
     exe.linkSystemLibrary("c");
-    exe.linkSystemLibrary(build_config.vulkan_lib);
+    exe.linkSystemLibrary("vulkan-1");
     exe.linkSystemLibrary("user32");
     exe.linkSystemLibrary("gdi32");
     exe.linkSystemLibrary("shell32");
